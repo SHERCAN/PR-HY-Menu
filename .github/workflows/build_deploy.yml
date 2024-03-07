@@ -1,0 +1,25 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted, linux, x64, my-runner-label
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: |
+        docker build -t manuApp .
+        docker tag manuApp:latest manuApp:latest
+
+    - name: Deploy to server
+      run: |
+        docker stop manuApp || true
+        docker rm manuApp || true
+        docker run -d --name manuApp -p 80:80 manuApp:latest
